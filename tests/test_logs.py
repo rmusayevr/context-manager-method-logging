@@ -36,3 +36,43 @@ def test_log_critical_level():
         assert logger.level == logging.CRITICAL
 
     assert logger.level == logging.WARNING
+
+
+def test_log_debug_level_sys(capsys):
+    with log(logging.DEBUG) as logger:
+        logger.debug("This is a debug message")
+
+    captured = capsys.readouterr()
+    assert "This is a debug message" in captured.out
+
+
+def test_log_info_level_sys(capsys):
+    with log(logging.INFO) as logger:
+        logger.info("This is an info message")
+
+    captured = capsys.readouterr()
+    assert "This is an info message" in captured.out
+
+
+def test_log_warning_level_sys(capsys):
+    with log(logging.WARNING) as logger:
+        logger.warning("This is a warning message")
+
+    captured = capsys.readouterr()
+    assert "This is a warning message" in captured.out
+
+
+def test_log_error_level_sys(capsys):
+    with log(logging.ERROR) as logger:
+        logger.error("This is an error message")
+
+    captured = capsys.readouterr()
+    assert "This is an error message" in captured.out
+
+
+def test_log_critical_level_sys(capsys):
+    with log(logging.CRITICAL) as logger:
+        logger.critical("This is a critical message")
+
+    captured = capsys.readouterr()
+    assert "This is a critical message" in captured.out
