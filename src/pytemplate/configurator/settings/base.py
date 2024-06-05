@@ -1,5 +1,3 @@
-from logging.config import dictConfig
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -17,4 +15,3 @@ LOGGING = {
     },
 }
 
-dictConfig(LOGGING)
