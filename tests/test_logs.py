@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from pytemplate.domain.models import LogLevel
 from pytemplate.service.logs import log
 
 
@@ -87,3 +88,11 @@ def test_log_datetime(capsys):
     captured_date_format = captured.out.split(" - ")[0]
     response = bool(datetime.strptime(captured_date_format, "%Y-%m-%d %H:%M:%S,%f"))
     assert response == True
+
+
+def test_log_level_values():
+    assert LogLevel.DEBUG.value == logging.DEBUG
+    assert LogLevel.INFO.value == logging.INFO
+    assert LogLevel.WARNING.value == logging.WARNING
+    assert LogLevel.ERROR.value == logging.ERROR
+    assert LogLevel.CRITICAL.value == logging.CRITICAL
