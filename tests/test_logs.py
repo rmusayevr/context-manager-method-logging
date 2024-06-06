@@ -1,12 +1,10 @@
 import logging
 from datetime import datetime
-from logging.config import dictConfig
 
-<<<<<<< launch_2_task_4
+import pytest
+
 from pytemplate.domain.models import LogLevel
-=======
-from pytemplate.configurator.settings.base import LOGGING
->>>>>>> main
+from pytemplate.domain.validators import validate_log_level
 from pytemplate.service.logs import log
 
 
@@ -97,3 +95,35 @@ def test_log_level_values():
     assert LogLevel.WARNING.value == logging.WARNING
     assert LogLevel.ERROR.value == logging.ERROR
     assert LogLevel.CRITICAL.value == logging.CRITICAL
+
+
+def test_valid_log_level():
+    @validate_log_level(LogLevel.INFO)
+    def test_function():
+        return "Function executed"
+
+    assert test_function() == "Function executed"
+
+
+def test_invalid_log_level_type_str():
+    with pytest.raises(TypeError) as exc_info:
+
+        @validate_log_level("INFO")
+        def test_func_invalid_type():
+            return "This should fail"
+
+        test_func_invalid_type()
+
+    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'str'>"
+
+
+def test_invalid_log_level_type_int():
+    with pytest.raises(TypeError) as exc_info:
+
+        @validate_log_level(50)
+        def test_func_invalid_type():
+            return "This should fail"
+
+        test_func_invalid_type()
+
+    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'int'>"
