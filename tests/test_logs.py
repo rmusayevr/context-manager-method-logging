@@ -1,14 +1,16 @@
 import logging
 from datetime import datetime
+from logging.config import dictConfig
 
 import pytest
 
+from pytemplate.configurator.settings.base import LOGGING
 from pytemplate.domain.models import LogLevel
 from pytemplate.domain.validators import validate_log_level
 from pytemplate.service.logs import log
 
-
 dictConfig(LOGGING)
+
 
 def test_log_debug_level():
     with log(logging.DEBUG) as logger:
