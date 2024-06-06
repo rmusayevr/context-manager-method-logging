@@ -1,8 +1,12 @@
 import logging
 from datetime import datetime
+from logging.config import dictConfig
 
+from pytemplate.configurator.settings.base import LOGGING
 from pytemplate.domain.models import LogLevel
 from pytemplate.service.logs import log
+
+dictConfig(LOGGING)
 
 
 def test_log_debug_level():
@@ -80,12 +84,11 @@ def test_log_critical_level_sys(capsys):
     assert "This is a critical message" in captured.out
 
 
-def test_log_datetime(capsys):
+def test_log_datetime(caplog):
     with log(logging.CRITICAL) as logger:
         logger.critical("This is a critical message")
 
-    captured = capsys.readouterr()
-    captured_date_format = captured.out.split(" - ")[0]
+    captured_date_format = [record.asctime for record in caplog.records][0]
     response = bool(datetime.strptime(captured_date_format, "%Y-%m-%d %H:%M:%S,%f"))
     assert response == True
 
