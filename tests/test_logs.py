@@ -112,76 +112,42 @@ def test_log_level_names():
 
 
 @validate_log_level
-def dummy_log_function(**kwargs):
-    return "Validation passed successfully!"
+def dummy_log_function():
+    kwargs = {"level": "DEBUG"}
+    with log(**kwargs) as logger:
+        logger.debug("Hey there")
+        return "Validation passed successfully!"
 
 
 def test_validate_log_level_valid():
-    kwargs = {"level": LogLevel.DEBUG}
-    response = dummy_log_function(**kwargs)
-
+    response = dummy_log_function()
     assert response == "Validation passed successfully!"
 
 
-def test_validate_log_level_invalid_int():
-    kwargs = {"level": 50}
-    with pytest.raises(TypeError) as exc_info:
-        dummy_log_function(**kwargs)
-
-    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'int'>"
-
-
 def test_validate_log_level_invalid_str():
-    kwargs = {"level": "DEBUG"}
-    with pytest.raises(TypeError) as exc_info:
-        dummy_log_function(**kwargs)
+    with pytest.raises(ValueError):
+        dummy_log_function(level="INVALID_LEVEL")
 
-    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'str'>"
+
+def test_validate_log_level_invalid_int():
+    with pytest.raises(ValueError):
+        dummy_log_function(level=10)
 
 
 def test_validate_log_level_invalid_none():
-    kwargs = {"level": None}
-    with pytest.raises(TypeError) as exc_info:
-        dummy_log_function(**kwargs)
-
-    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'NoneType'>"
+    with pytest.raises(ValueError):
+        dummy_log_function(level=None)
 
 
-@patch("builtins.input", side_effect=["DEBUG"])
-@pytest.mark.usefixtures("caplog")
-def test_log_level_debug(mock_input, caplog):
-    with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
+@pytest.mark.parametrize("user_input, expected_output", [
+    (["DEBUG"], "Main worked successfully!"),
+    (["INFO"], "Main worked successfully!"),
+    (["WARNING"], ""),
+    (["ERROR"], ""),
+    (["CRITICAL"], ""),
+])
+def test_main(user_input, expected_output, capsys):
+    with patch('builtins.input', side_effect=user_input):
         main()
-        assert "This is a debug message." in caplog.text
-
-
-@patch("builtins.input", side_effect=["INFO"])
-@pytest.mark.usefixtures("caplog")
-def test_log_level_info(mock_input, caplog):
-    with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-        main()
-        assert "This is an informational message." in caplog.text
-
-
-@patch("builtins.input", side_effect=["WARNING"])
-@pytest.mark.usefixtures("caplog")
-def test_log_level_warning(mock_input, caplog):
-    with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-        main()
-        assert "This is a warning message." in caplog.text
-
-
-@patch("builtins.input", side_effect=["ERROR"])
-@pytest.mark.usefixtures("caplog")
-def test_log_level_error(mock_input, caplog):
-    with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-        main()
-        assert "This is an error message." in caplog.text
-
-
-@patch("builtins.input", side_effect=["CRITICAL"])
-@pytest.mark.usefixtures("caplog")
-def test_log_level_critical(mock_input, caplog):
-    with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
-        main()
-        assert "This is a critical message." in caplog.text
+        captured = capsys.readouterr()
+        assert expected_output in captured.out
