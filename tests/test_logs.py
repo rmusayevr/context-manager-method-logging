@@ -6,8 +6,6 @@ from pytemplate.configurator.settings.base import LOGGING
 from pytemplate.service.logs import log
 
 
-dictConfig(LOGGING)
-
 def test_log_debug_level():
     with log(logging.DEBUG) as logger:
         assert logger.level == logging.DEBUG
@@ -76,6 +74,9 @@ def test_log_critical_level_sys(caplog):
         logger.critical("This is a critical message")
 
     assert "This is a critical message" in caplog.text
+
+
+dictConfig(LOGGING)
 
 
 def test_log_datetime(caplog):
