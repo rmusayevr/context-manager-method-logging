@@ -111,7 +111,6 @@ def test_log_level_names():
     assert str(LogLevel.CRITICAL) == "LogLevel.CRITICAL"
 
 
-@validate_log_level
 def dummy_log_function():
     kwargs = {"level": "DEBUG"}
     with log(**kwargs) as logger:
@@ -126,28 +125,37 @@ def test_validate_log_level_valid():
 
 def test_validate_log_level_invalid_str():
     with pytest.raises(ValueError):
-        dummy_log_function(level="INVALID_LEVEL")
+        kwargs = {"level": "INVALID_LEVEL"}
+        with log(**kwargs) as logger:
+            pass
 
 
 def test_validate_log_level_invalid_int():
     with pytest.raises(ValueError):
-        dummy_log_function(level=10)
+        kwargs = {"level": 10}
+        with log(**kwargs) as logger:
+            pass
 
 
 def test_validate_log_level_invalid_none():
     with pytest.raises(ValueError):
-        dummy_log_function(level=None)
+        kwargs = {"level": None}
+        with log(**kwargs) as logger:
+            pass
 
 
-@pytest.mark.parametrize("user_input, expected_output", [
-    (["DEBUG"], "Main worked successfully!"),
-    (["INFO"], "Main worked successfully!"),
-    (["WARNING"], ""),
-    (["ERROR"], ""),
-    (["CRITICAL"], ""),
-])
+@pytest.mark.parametrize(
+    "user_input, expected_output",
+    [
+        (["DEBUG"], "Main worked successfully!"),
+        (["INFO"], "Main worked successfully!"),
+        (["WARNING"], ""),
+        (["ERROR"], ""),
+        (["CRITICAL"], ""),
+    ],
+)
 def test_main(user_input, expected_output, capsys):
-    with patch('builtins.input', side_effect=user_input):
+    with patch("builtins.input", side_effect=user_input):
         main()
         captured = capsys.readouterr()
         assert expected_output in captured.out
