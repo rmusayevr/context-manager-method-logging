@@ -9,8 +9,6 @@ from pytemplate.domain.models import LogLevel
 from pytemplate.domain.validators import validate_log_level
 from pytemplate.service.logs import log
 
-dictConfig(LOGGING)
-
 
 def test_log_debug_level():
     with log(logging.DEBUG) as logger:
@@ -82,6 +80,9 @@ def test_log_critical_level_sys(caplog):
     assert "This is a critical message" in caplog.text
 
 
+dictConfig(LOGGING)
+
+
 def test_log_datetime(caplog):
     with log(logging.CRITICAL) as logger:
         logger.critical("This is a critical message")
@@ -99,33 +100,34 @@ def test_log_level_values():
     assert LogLevel.CRITICAL.value == logging.CRITICAL
 
 
-def test_valid_log_level():
-    @validate_log_level(LogLevel.INFO)
-    def test_function():
-        return "Function executed"
-
-    assert test_function() == "Function executed"
-
-
-def test_invalid_log_level_type_str():
-    with pytest.raises(TypeError) as exc_info:
-
-        @validate_log_level("INFO")
-        def test_func_invalid_type():
-            return "This should fail"
-
-        test_func_invalid_type()
-
-    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'str'>"
+def dummy_log_function():
+    kwargs = {"level": "DEBUG"}
+    with log(**kwargs) as logger:
+        logger.debug("Hey there")
+        return "Validation passed successfully!"
 
 
-def test_invalid_log_level_type_int():
-    with pytest.raises(TypeError) as exc_info:
+def test_validate_log_level_valid():
+    response = dummy_log_function()
+    assert response == "Validation passed successfully!"
 
-        @validate_log_level(50)
-        def test_func_invalid_type():
-            return "This should fail"
 
-        test_func_invalid_type()
+def test_validate_log_level_invalid_str():
+    with pytest.raises(ValueError):
+        kwargs = {"level": "INVALID_LEVEL"}
+        with log(**kwargs) as logger:
+            pass
 
-    assert str(exc_info.value) == "Level argument must be of type LogLevel, not <class 'int'>"
+
+def test_validate_log_level_invalid_int():
+    with pytest.raises(ValueError):
+        kwargs = {"level": 10}
+        with log(**kwargs) as logger:
+            pass
+
+
+def test_validate_log_level_invalid_none():
+    with pytest.raises(ValueError):
+        kwargs = {"level": None}
+        with log(**kwargs) as logger:
+            pass

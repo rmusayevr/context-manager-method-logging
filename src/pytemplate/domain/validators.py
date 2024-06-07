@@ -3,16 +3,18 @@ from functools import wraps
 from pytemplate.domain.models import LogLevel
 
 
-def validate_log_level(level):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            if not isinstance(level, LogLevel):
-                raise TypeError(f"Level argument must be of type LogLevel, not {type(level)}")
-            if level.value not in [log.value for log in LogLevel]:
-                raise ValueError(f"Invalid LogLevel value: {level.value}")
-            return func(*args, **kwargs)
+def validate_level(level):
+    try:
+        return LogLevel[level].value
+    except KeyError as exc:
+        raise ValueError(f"Invalid log level: {level}") from exc
 
-        return wrapper
 
-    return decorator
+def validate_log_level(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if "level" in kwargs:
+            kwargs["level"] = validate_level(kwargs["level"])
+        return func(*args, **kwargs)
+
+    return wrapper
