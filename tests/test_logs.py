@@ -94,3 +94,11 @@ def test_log_level_values():
     assert LogLevel.WARNING.value == logging.WARNING
     assert LogLevel.ERROR.value == logging.ERROR
     assert LogLevel.CRITICAL.value == logging.CRITICAL
+
+
+def test_log_level_names():
+    assert str(LogLevel.DEBUG) == "LogLevel.DEBUG"
+    assert str(LogLevel.INFO) == "LogLevel.INFO"
+    assert str(LogLevel.WARNING) == "LogLevel.WARNING"
+    assert str(LogLevel.ERROR) == "LogLevel.ERROR"
+    assert str(LogLevel.CRITICAL) == "LogLevel.CRITICAL"
